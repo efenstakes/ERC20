@@ -1,12 +1,14 @@
 // Solidity files have to start with this pragma.
 // It will be used by the Solidity compiler to validate its version.
-pragma solidity ^0.7.0;
+pragma solidity 0.8.11;
 
 
 import "hardhat/console.sol";
 
 
 // This is the main building block for smart contracts.
+// tx link
+// https://rinkeby.etherscan.io/address/0xB49E2fDB0BDf2c2B60900bB5C3680aF818C5dd2d
 contract Token {
     // Some string type variables to identify the token.
     // The `public` modifier makes a variable readable from outside the contract.
@@ -46,13 +48,13 @@ contract Token {
 
 
 
-    modifier onlyOwner(address who) {
-        require(who == owner, "Only Owner");
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only Owner");
         _;
     }
 
 
-    function mint(address to, uint256 amount) onlyOwner external public returns(bool) {
+    function mint(address to, uint256 amount) onlyOwner external returns(bool) {
         require(to != address(0), "Cant mint to address 0");
 
         balances[to] += amount;
@@ -83,6 +85,7 @@ contract Token {
         return true;
     }
 
+
     /**
      * Read only function to retrieve the token balance of a given account.
      *
@@ -95,8 +98,8 @@ contract Token {
 
 
 
-    function allowance(address owner, address spender) external returns(uint256) {
-        return allowances[spender][owner];
+    function allowance(address _owner, address spender) external view returns(uint256) {
+        return allowances[spender][_owner];
     }
 
     function approve(address spender, uint256 amount) external returns(bool) {
@@ -106,9 +109,9 @@ contract Token {
         // ensure account has enough balance
         require(balances[msg.sender] >= amount, "Not enough balance");
 
-        allowances[spender][msg.sender] += account;
+        allowances[spender][msg.sender] += amount;
 
-        emit Transfer(to, msg.sender, amount);
+        emit Transfer(spender, msg.sender, amount);
 
         return true;
     }
